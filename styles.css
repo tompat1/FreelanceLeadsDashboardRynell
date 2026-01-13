@@ -88,24 +88,6 @@ body {
   color: #fff;
 }
 
-.upgrade {
-  margin-top: auto;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 18px;
-  border-radius: 16px;
-}
-
-.upgrade__title {
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.upgrade__subtitle {
-  font-size: 0.85rem;
-  color: rgba(248, 249, 252, 0.7);
-  margin-bottom: 12px;
-}
-
 .content {
   padding: 32px 40px 48px;
   display: flex;
@@ -447,10 +429,6 @@ h1 {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-  }
-
-  .upgrade {
-    display: none;
   }
 
   .nav {
