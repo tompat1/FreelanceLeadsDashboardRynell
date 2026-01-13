@@ -120,6 +120,13 @@ body {
   gap: 24px;
 }
 
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -191,12 +198,14 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .contacts__actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .contacts__toolbar {
@@ -243,6 +252,8 @@ h1 {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
 }
 
 .table-wrapper {
@@ -458,10 +469,36 @@ h1 {
     align-items: flex-start;
   }
 
+  .topbar__actions {
+    width: 100%;
+  }
+
+  .topbar__actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
   .contacts__actions {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+  }
+
+  .contacts__toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .contacts__form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions .button {
+    width: 100%;
+    justify-content: center;
   }
 
   .pipeline__row {
