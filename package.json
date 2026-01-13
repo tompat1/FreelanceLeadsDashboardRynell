@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "node scripts/vite-runner.js dev",
+    "build": "node scripts/vite-runner.js build",
+    "preview": "node scripts/vite-runner.js preview",
     "test": "npm run test:build && npm run test:preview",
-    "test:build": "vite build",
-    "test:preview": "vite build && (vite preview --strictPort --port 4173 --host 127.0.0.1 & preview_pid=$!; sleep 2; kill $preview_pid)"
+    "test:build": "node scripts/vite-runner.js build",
+    "test:preview": "node scripts/vite-runner.js preview --once"
   },
   "devDependencies": {
     "vite": "^5.4.10"
