@@ -51,6 +51,101 @@
 
         <section class="stats" id="stats"></section>
 
+        <section class="card contacts">
+          <div class="card__header">
+            <div>
+              <p class="eyebrow">Contact Manager</p>
+              <h2>Contacts &amp; Activity Hub</h2>
+            </div>
+            <div class="contacts__actions">
+              <label class="button button--ghost file-button">
+                Import CSV
+                <input type="file" id="csv-upload" accept=".csv" />
+              </label>
+              <button class="button button--ghost" id="export-contacts" type="button">
+                Export List
+              </button>
+            </div>
+          </div>
+          <div class="contacts__toolbar">
+            <div class="input-group">
+              <label for="search">Search contacts</label>
+              <input id="search" type="search" placeholder="Search by name, company, or email" />
+            </div>
+            <div class="input-group">
+              <label for="stage-filter">Filter by stage</label>
+              <select id="stage-filter">
+                <option value="all">All stages</option>
+                <option value="Prospect">Prospect</option>
+                <option value="Discovery">Discovery</option>
+                <option value="Proposal">Proposal</option>
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+          </div>
+          <form class="contacts__form" id="contact-form">
+            <input type="hidden" id="contact-id" />
+            <div class="input-group">
+              <label for="contact-name">Full name</label>
+              <input id="contact-name" type="text" placeholder="Add a contact name" required />
+            </div>
+            <div class="input-group">
+              <label for="contact-role">Role</label>
+              <input id="contact-role" type="text" placeholder="Creative Director" />
+            </div>
+            <div class="input-group">
+              <label for="contact-company">Company</label>
+              <input id="contact-company" type="text" placeholder="Studio name" />
+            </div>
+            <div class="input-group">
+              <label for="contact-email">Email</label>
+              <input id="contact-email" type="email" placeholder="hello@client.com" />
+            </div>
+            <div class="input-group">
+              <label for="contact-stage">Stage</label>
+              <select id="contact-stage">
+                <option value="Prospect">Prospect</option>
+                <option value="Discovery">Discovery</option>
+                <option value="Proposal">Proposal</option>
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="contact-last">Last touchpoint</label>
+              <input id="contact-last" type="text" placeholder="Aug 10 · Brand workshop" />
+            </div>
+            <div class="input-group">
+              <label for="contact-next">Next action</label>
+              <input id="contact-next" type="text" placeholder="Send proposal by Friday" />
+            </div>
+            <div class="form-actions">
+              <button class="button" type="submit" id="save-contact">Save contact</button>
+              <button class="button button--ghost" type="button" id="reset-contact">
+                Clear
+              </button>
+            </div>
+          </form>
+          <div class="table-wrapper">
+            <table class="contacts-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Email</th>
+                  <th>Stage</th>
+                  <th>Last touchpoint</th>
+                  <th>Next action</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contacts-body"></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="grid">
           <div class="card card--wide">
             <div class="card__header">
