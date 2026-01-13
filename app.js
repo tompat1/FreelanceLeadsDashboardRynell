@@ -81,38 +81,7 @@ const csvUpload = document.getElementById("csv-upload");
 const exportButton = document.getElementById("export-contacts");
 const resetButton = document.getElementById("reset-contact");
 
-const contacts = [
-  {
-    id: "c-1",
-    name: "Avery Summers",
-    role: "Brand Manager",
-    company: "Ridge & Co",
-    email: "avery@ridgeco.com",
-    stage: "Discovery",
-    lastTouchpoint: "Aug 12 · Discovery call",
-    nextAction: "Share moodboard options",
-  },
-  {
-    id: "c-2",
-    name: "Jayden Park",
-    role: "Marketing Lead",
-    company: "Studio Lumo",
-    email: "jayden@studiolumo.com",
-    stage: "Proposal",
-    lastTouchpoint: "Aug 9 · Proposal sent",
-    nextAction: "Follow up on scope",
-  },
-  {
-    id: "c-3",
-    name: "Lena Ortiz",
-    role: "Founder",
-    company: "Brightline Media",
-    email: "lena@brightline.io",
-    stage: "Active",
-    lastTouchpoint: "Aug 8 · Content sprint",
-    nextAction: "Schedule brand photoshoot",
-  },
-];
+const contacts = [];
 
 stats.forEach((stat) => {
   const card = document.createElement("div");
@@ -298,7 +267,60 @@ const populateForm = (contact) => {
   document.getElementById("save-contact").textContent = "Update contact";
 };
 
-contactForm.addEventListener("submit", (event) => {
+const fetchContacts = async () => {
+  const response = await fetch("/api/contacts");
+  if (!response.ok) {
+    throw new Error("Failed to load contacts.");
+  }
+
+  const data = await response.json();
+  contacts.splice(0, contacts.length, ...data);
+  renderContacts();
+};
+
+const createContact = async (payload) => {
+  const response = await fetch("/api/contacts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create contact.");
+  }
+
+  return response.json();
+};
+
+const updateContact = async (contactId, payload) => {
+  const response = await fetch(`/api/contacts/${contactId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update contact.");
+  }
+
+  return response.json();
+};
+
+const deleteContact = async (contactId) => {
+  const response = await fetch(`/api/contacts/${contactId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete contact.");
+  }
+};
+
+contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const payload = {
@@ -318,19 +340,24 @@ contactForm.addEventListener("submit", (event) => {
 
   const existingIndex = contacts.findIndex((contact) => contact.id === payload.id);
 
-  if (existingIndex >= 0) {
-    contacts[existingIndex] = payload;
-  } else {
-    contacts.unshift(payload);
+  try {
+    if (existingIndex >= 0) {
+      const updated = await updateContact(payload.id, payload);
+      contacts[existingIndex] = updated;
+    } else {
+      const created = await createContact(payload);
+      contacts.unshift(created);
+    }
+    resetForm();
+    renderContacts();
+  } catch (error) {
+    alert(error.message);
   }
-
-  resetForm();
-  renderContacts();
 });
 
 resetButton.addEventListener("click", resetForm);
 
-contactsBody.addEventListener("click", (event) => {
+contactsBody.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) {
     return;
@@ -349,29 +376,39 @@ contactsBody.addEventListener("click", (event) => {
   }
 
   if (action === "delete") {
-    contacts.splice(
-      contacts.findIndex((item) => item.id === contactId),
-      1
-    );
-    renderContacts();
+    try {
+      await deleteContact(contactId);
+      contacts.splice(
+        contacts.findIndex((item) => item.id === contactId),
+        1
+      );
+      renderContacts();
+    } catch (error) {
+      alert(error.message);
+    }
   }
 });
 
 searchField.addEventListener("input", renderContacts);
 stageFilter.addEventListener("change", renderContacts);
 
-csvUpload.addEventListener("change", (event) => {
+csvUpload.addEventListener("change", async (event) => {
   const [file] = event.target.files;
   if (!file) {
     return;
   }
 
   const reader = new FileReader();
-  reader.addEventListener("load", (loadEvent) => {
+  reader.addEventListener("load", async (loadEvent) => {
     const rows = parseCsv(loadEvent.target.result);
     if (rows.length) {
-      contacts.unshift(...rows);
-      renderContacts();
+      try {
+        const created = await Promise.all(rows.map((row) => createContact(row)));
+        contacts.unshift(...created);
+        renderContacts();
+      } catch (error) {
+        alert(error.message);
+      }
     }
     csvUpload.value = "";
   });
@@ -409,4 +446,6 @@ exportButton.addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 
-renderContacts();
+fetchContacts().catch((error) => {
+  alert(error.message);
+});
