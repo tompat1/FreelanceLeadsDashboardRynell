@@ -468,12 +468,14 @@ async function fetchCalendarEvents(start, end) {
   }
 }
 
-async function renderCalendar(date) {
-  if (!calendarContainer) return;
+async function renderCalendarInto(date, containerElem, monthLabelElem) {
+  if (!containerElem) return;
   const year = date.getFullYear();
   const month = date.getMonth();
 
-  calendarMonthLabel.textContent = date.toLocaleString(undefined, { month: "long", year: "numeric" });
+  if (monthLabelElem) {
+    monthLabelElem.textContent = date.toLocaleString(undefined, { month: "long", year: "numeric" });
+  }
 
   // compute month range (YYYY-MM-DD)
   const start = new Date(year, month, 1);
@@ -482,7 +484,7 @@ async function renderCalendar(date) {
   const events = await fetchCalendarEvents(toIso(start), toIso(end));
 
   // clear
-  calendarContainer.innerHTML = "";
+  containerElem.innerHTML = "";
 
   // weekday headers
   const weekdays = document.createElement("div");
@@ -493,7 +495,7 @@ async function renderCalendar(date) {
     el.textContent = wd;
     weekdays.appendChild(el);
   });
-  calendarContainer.appendChild(weekdays);
+  containerElem.appendChild(weekdays);
 
   const grid = document.createElement("div");
   grid.className = "calendar-grid";
@@ -518,12 +520,11 @@ async function renderCalendar(date) {
 
     // attach events for this day
     const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    cell.dataset.date = dateKey;
     const dayEvents = events.filter((e) => e.date === dateKey);
     if (dayEvents.length) {
       const badge = document.createElement("div");
-      badge.style.marginTop = "6px";
-      badge.style.fontSize = "0.75rem";
-      badge.style.color = "var(--muted)";
+      badge.className = "event-count";
       badge.textContent = `${dayEvents.length} event${dayEvents.length > 1 ? "s" : ""}`;
       cell.appendChild(badge);
     }
@@ -541,7 +542,14 @@ async function renderCalendar(date) {
     grid.appendChild(cell);
   }
 
-  calendarContainer.appendChild(grid);
+  containerElem.appendChild(grid);
+
+  // bind clicks for day cells to open modal
+  bindCellHandlers(grid, events);
+}
+
+async function renderCalendar(date) {
+  return renderCalendarInto(date, calendarContainer, calendarMonthLabel);
 }
 
 if (prevMonthBtn && nextMonthBtn) {
@@ -556,8 +564,205 @@ if (prevMonthBtn && nextMonthBtn) {
   });
 }
 
+// modal and CRUD wiring for calendar events
+let lastFetchedEvents = [];
+
+const modal = document.getElementById("calendar-modal");
+const modalOverlay = document.getElementById("calendar-modal-overlay");
+const eventForm = document.getElementById("event-form");
+const eventIdField = document.getElementById("event-id");
+const eventTitleField = document.getElementById("event-title");
+const eventDateField = document.getElementById("event-date");
+const eventStartField = document.getElementById("event-start");
+const eventEndField = document.getElementById("event-end");
+const eventNotesField = document.getElementById("event-notes");
+const eventList = document.getElementById("event-list");
+const deleteEventBtn = document.getElementById("delete-event");
+const cancelEventBtn = document.getElementById("cancel-event");
+
+function openModal() {
+  if (!modal) return;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeModal() {
+  if (!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  eventForm.reset();
+  eventIdField.value = "";
+  deleteEventBtn.style.display = "none";
+}
+
+async function createEvent(payload) {
+  const res = await fetch("/api/calendar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to create event");
+  return res.json();
+}
+
+async function updateEvent(id, payload) {
+  const res = await fetch(`/api/calendar/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to update event");
+  return res.json();
+}
+
+async function deleteEvent(id) {
+  const res = await fetch(`/api/calendar/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete event");
+}
+
+function bindCellHandlers(grid, eventsForMonth) {
+  // attach click handlers to date cells
+  grid.querySelectorAll(".calendar-day").forEach((cell) => {
+    const date = cell.dataset.date;
+    if (!date) return;
+    cell.style.cursor = "pointer";
+    cell.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openEventModal(date, eventsForMonth.filter((ev) => ev.date === date));
+    });
+  });
+}
+
+function renderEventList(date, events) {
+  if (!eventList) return;
+  eventList.innerHTML = "";
+  if (!events.length) {
+    const p = document.createElement("div");
+    p.textContent = "No events for this date.";
+    eventList.appendChild(p);
+    return;
+  }
+
+  events.forEach((ev) => {
+    const item = document.createElement("div");
+    item.className = "event-item";
+    item.innerHTML = `
+      <div>
+        <div style="font-weight:700">${ev.title}</div>
+        <div style="font-size:0.85rem;color:var(--muted)">${ev.startTime || ""} ${ev.endTime ? '– ' + ev.endTime : ''}</div>
+      </div>
+      <div>
+        <button class="button button--ghost button--small" data-edit-id="${ev.id}">Edit</button>
+      </div>
+    `;
+    eventList.appendChild(item);
+
+    const editBtn = item.querySelector("button[data-edit-id]");
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      populateEventForm(ev);
+    });
+  });
+}
+
+function populateEventForm(ev) {
+  if (!ev) return;
+  eventIdField.value = ev.id;
+  eventTitleField.value = ev.title || "";
+  eventDateField.value = ev.date || "";
+  eventStartField.value = ev.startTime || "";
+  eventEndField.value = ev.endTime || "";
+  eventNotesField.value = ev.notes || "";
+  deleteEventBtn.style.display = "inline-block";
+}
+
+function openEventModal(date, eventsForDate = []) {
+  renderEventList(date, eventsForDate);
+  eventDateField.value = date;
+  openModal();
+}
+
+modalOverlay?.addEventListener("click", closeModal);
+cancelEventBtn?.addEventListener("click", closeModal);
+
+eventForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    title: eventTitleField.value.trim(),
+    date: eventDateField.value,
+    startTime: eventStartField.value || "",
+    endTime: eventEndField.value || "",
+    notes: eventNotesField.value.trim() || "",
+  };
+
+  try {
+    if (eventIdField.value) {
+      await updateEvent(eventIdField.value, payload);
+    } else {
+      await createEvent(payload);
+    }
+    closeModal();
+    renderCalendar(calendarDate);
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+deleteEventBtn?.addEventListener("click", async () => {
+  if (!eventIdField.value) return;
+  if (!confirm("Delete this event?")) return;
+  try {
+    await deleteEvent(eventIdField.value);
+    closeModal();
+    renderCalendar(calendarDate);
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
 // initial render
 renderCalendar(calendarDate);
+
+// Fullscreen calendar wiring
+const navCalendarLink = document.getElementById("nav-calendar-link");
+const fsOverlay = document.getElementById("calendar-fullscreen");
+const fsContainer = document.getElementById("calendar-fullscreen-calendar");
+const fsPrev = document.getElementById("fs-prev");
+const fsNext = document.getElementById("fs-next");
+const fsClose = document.getElementById("fs-close");
+const fsMonthLabel = document.getElementById("fs-month");
+
+let fsDate = new Date();
+
+function openFullscreenCalendar() {
+  if (!fsOverlay) return;
+  fsOverlay.classList.add("open");
+  fsOverlay.setAttribute("aria-hidden", "false");
+  renderCalendarInto(fsDate, fsContainer, fsMonthLabel);
+}
+
+function closeFullscreenCalendar() {
+  if (!fsOverlay) return;
+  fsOverlay.classList.remove("open");
+  fsOverlay.setAttribute("aria-hidden", "true");
+}
+
+navCalendarLink?.addEventListener("click", (e) => {
+  e.preventDefault();
+  openFullscreenCalendar();
+});
+
+fsPrev?.addEventListener("click", () => {
+  fsDate = new Date(fsDate.getFullYear(), fsDate.getMonth() - 1, 1);
+  renderCalendarInto(fsDate, fsContainer, fsMonthLabel);
+});
+
+fsNext?.addEventListener("click", () => {
+  fsDate = new Date(fsDate.getFullYear(), fsDate.getMonth() + 1, 1);
+  renderCalendarInto(fsDate, fsContainer, fsMonthLabel);
+});
+
+fsClose?.addEventListener("click", closeFullscreenCalendar);
 
 fetchContacts().catch((error) => {
   alert(error.message);

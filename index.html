@@ -26,7 +26,7 @@
           <a class="nav__link nav__link--active" href="#">Overview</a>
           <a class="nav__link" href="#">Pipeline</a>
           <a class="nav__link" href="#">Clients</a>
-          <a class="nav__link" href="#">Calendar</a>
+          <a id="nav-calendar-link" class="nav__link" href="#">Calendar</a>
           <a class="nav__link" href="#">Reports</a>
           <a class="nav__link" href="#">Settings</a>
         </nav>
@@ -182,5 +182,56 @@
     </div>
 
     <script src="app.js" defer></script>
+    <!-- Calendar event modal -->
+    <div id="calendar-modal" class="modal" aria-hidden="true">
+      <div class="modal__overlay" id="calendar-modal-overlay"></div>
+      <div class="modal__panel" role="dialog" aria-modal="true">
+        <h3 id="modal-title">Events</h3>
+        <div id="event-list" class="event-list"></div>
+
+        <form id="event-form">
+          <input type="hidden" id="event-id" />
+          <div class="input-group">
+            <label for="event-title">Title</label>
+            <input id="event-title" type="text" required />
+          </div>
+          <div class="input-group">
+            <label for="event-date">Date</label>
+            <input id="event-date" type="date" required />
+          </div>
+          <div class="input-group">
+            <label for="event-start">Start</label>
+            <input id="event-start" type="time" />
+          </div>
+          <div class="input-group">
+            <label for="event-end">End</label>
+            <input id="event-end" type="time" />
+          </div>
+          <div class="input-group">
+            <label for="event-notes">Notes</label>
+            <textarea id="event-notes" rows="3"></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="button" type="submit" id="save-event">Save</button>
+            <button class="button button--ghost" type="button" id="cancel-event">Cancel</button>
+            <button class="button button--ghost" type="button" id="delete-event" style="display:none">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Fullscreen calendar overlay -->
+    <div id="calendar-fullscreen" class="calendar-fullscreen" aria-hidden="true">
+      <div class="calendar-fullscreen__panel">
+        <div class="card__header">
+          <h2 id="fs-month">Calendar</h2>
+          <div class="calendar__controls">
+            <button class="button button--ghost" id="fs-prev" type="button">‹</button>
+            <button class="button button--ghost" id="fs-next" type="button">›</button>
+            <button class="button button--ghost" id="fs-close" type="button">Close</button>
+          </div>
+        </div>
+        <div id="calendar-fullscreen-calendar" class="calendar fullscreen-calendar"></div>
+      </div>
+    </div>
   </body>
 </html>

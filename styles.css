@@ -426,6 +426,105 @@ h1 {
   color: rgba(16, 24, 40, 0.35);
 }
 
+/* Modal for event creation/edit */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.modal.open {
+  display: block;
+}
+
+.modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2,6,23,0.5);
+}
+
+.modal__panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card);
+  padding: 20px;
+  border-radius: 14px;
+  width: 420px;
+  max-width: calc(100% - 40px);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 12px;
+}
+
+.event-list {
+  max-height: 160px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.event-item {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.modal .input-group {
+  margin-top: 4px;
+}
+
+/* Fullscreen calendar overlay */
+.calendar-fullscreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.55);
+  z-index: 70;
+  padding: 32px;
+}
+
+.calendar-fullscreen.open {
+  display: block;
+}
+
+.calendar-fullscreen__panel {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.fullscreen-calendar .calendar-grid {
+  gap: 10px;
+}
+
+.calendar-day {
+  position: relative;
+}
+
+.calendar-day > div:first-child {
+  font-weight: 600;
+}
+
+.calendar-day .event-count {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 .button {
   border: none;
   background: var(--primary);
