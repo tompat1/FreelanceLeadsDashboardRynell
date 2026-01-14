@@ -383,6 +383,49 @@ h1 {
   font-size: 0.85rem;
 }
 
+/* Calendar placeholder styles */
+.calendar__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar__month {
+  font-weight: 700;
+}
+
+.calendar {
+  display: grid;
+  gap: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-weekday {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 6px 8px;
+}
+
+.calendar-day {
+  min-height: 72px;
+  background: #fbfcfe;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.calendar-day--muted {
+  color: rgba(16, 24, 40, 0.35);
+}
+
 .button {
   border: none;
   background: var(--primary);

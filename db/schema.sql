@@ -9,3 +9,13 @@ CREATE TABLE IF NOT EXISTS contacts (
   next_action TEXT,
   created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS events (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  date TEXT NOT NULL,
+  start_time TEXT,
+  end_time TEXT,
+  notes TEXT,
+  created_at TEXT NOT NULL
+);

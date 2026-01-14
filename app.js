@@ -446,6 +446,119 @@ exportButton.addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 
+/* Simple calendar placeholder: renders current month and basic navigation */
+const calendarContainer = document.getElementById("calendar");
+const calendarMonthLabel = document.getElementById("calendar-month");
+const prevMonthBtn = document.getElementById("prev-month");
+const nextMonthBtn = document.getElementById("next-month");
+
+let calendarDate = new Date();
+
+const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+async function fetchCalendarEvents(start, end) {
+  try {
+    const url = `/api/calendar?start=${start}&end=${end}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to load events");
+    return res.json();
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
+async function renderCalendar(date) {
+  if (!calendarContainer) return;
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  calendarMonthLabel.textContent = date.toLocaleString(undefined, { month: "long", year: "numeric" });
+
+  // compute month range (YYYY-MM-DD)
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const toIso = (d) => d.toISOString().slice(0, 10);
+  const events = await fetchCalendarEvents(toIso(start), toIso(end));
+
+  // clear
+  calendarContainer.innerHTML = "";
+
+  // weekday headers
+  const weekdays = document.createElement("div");
+  weekdays.className = "calendar-grid";
+  weekdayNames.forEach((wd) => {
+    const el = document.createElement("div");
+    el.className = "calendar-weekday";
+    el.textContent = wd;
+    weekdays.appendChild(el);
+  });
+  calendarContainer.appendChild(weekdays);
+
+  const grid = document.createElement("div");
+  grid.className = "calendar-grid";
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // fill leading empty days
+  for (let i = 0; i < firstDay; i++) {
+    const cell = document.createElement("div");
+    cell.className = "calendar-day calendar-day--muted";
+    cell.textContent = "";
+    grid.appendChild(cell);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement("div");
+    cell.className = "calendar-day";
+    const num = document.createElement("div");
+    num.textContent = d;
+    cell.appendChild(num);
+
+    // attach events for this day
+    const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const dayEvents = events.filter((e) => e.date === dateKey);
+    if (dayEvents.length) {
+      const badge = document.createElement("div");
+      badge.style.marginTop = "6px";
+      badge.style.fontSize = "0.75rem";
+      badge.style.color = "var(--muted)";
+      badge.textContent = `${dayEvents.length} event${dayEvents.length > 1 ? "s" : ""}`;
+      cell.appendChild(badge);
+    }
+
+    grid.appendChild(cell);
+  }
+
+  // ensure grid fills complete weeks (optional trailing cells)
+  const totalCells = firstDay + daysInMonth;
+  const trailing = (7 - (totalCells % 7)) % 7;
+  for (let i = 0; i < trailing; i++) {
+    const cell = document.createElement("div");
+    cell.className = "calendar-day calendar-day--muted";
+    cell.textContent = "";
+    grid.appendChild(cell);
+  }
+
+  calendarContainer.appendChild(grid);
+}
+
+if (prevMonthBtn && nextMonthBtn) {
+  prevMonthBtn.addEventListener("click", () => {
+    calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1);
+    renderCalendar(calendarDate);
+  });
+
+  nextMonthBtn.addEventListener("click", () => {
+    calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1);
+    renderCalendar(calendarDate);
+  });
+}
+
+// initial render
+renderCalendar(calendarDate);
+
 fetchContacts().catch((error) => {
   alert(error.message);
 });
