@@ -46,7 +46,7 @@ export async function onRequestPut({ request, params, env }) {
     role: payload.role?.trim() || "",
     company: payload.company?.trim() || "",
     email: payload.email?.trim() || "",
-    stage: payload.stage?.trim() || "Prospect",
+    stage: payload.stage?.trim() || "Inquiry",
     lastTouchpoint: payload.lastTouchpoint?.trim() || "",
     nextAction: payload.nextAction?.trim() || "",
   };

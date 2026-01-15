@@ -39,7 +39,7 @@ export async function onRequestPost({ request, env }) {
     role: payload.role?.trim() || "",
     company: payload.company?.trim() || "",
     email: payload.email?.trim() || "",
-    stage: payload.stage?.trim() || "Prospect",
+    stage: payload.stage?.trim() || "Inquiry",
     lastTouchpoint: payload.lastTouchpoint?.trim() || "",
     nextAction: payload.nextAction?.trim() || "",
   };

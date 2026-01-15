@@ -1,46 +1,47 @@
 const stats = [
   {
-    label: "New leads this week",
-    value: 48,
-    trend: "+12% vs last week",
+    label: "New design leads",
+    value: 32,
+    trend: "+10% vs last week",
   },
   {
-    label: "Active proposals",
-    value: 17,
-    trend: "+3 in review",
+    label: "Active design proposals",
+    value: 14,
+    trend: "+2 awaiting feedback",
   },
   {
-    label: "Client follow-ups",
-    value: 9,
-    trend: "2 due today",
+    label: "Ideas in exploration",
+    value: 11,
+    trend: "3 ready to pitch",
   },
   {
-    label: "Projected revenue",
-    value: "$42.5k",
-    trend: "+18% this month",
+    label: "Projected design revenue",
+    value: "$38.2k",
+    trend: "+14% this month",
   },
 ];
 
 const pipelineStages = [
-  { label: "Discovery", value: 72 },
-  { label: "Proposal", value: 58 },
-  { label: "Negotiation", value: 36 },
-  { label: "Closed-won", value: 24 },
+  { label: "Inquiry", value: 68 },
+  { label: "Discovery", value: 52 },
+  { label: "Proposal", value: 41 },
+  { label: "Design", value: 30 },
+  { label: "Retainer", value: 18 },
 ];
 
 const upcomingCalls = [
   {
-    title: "Kickoff call · NovaTech",
+    title: "Brand discovery · NovaTech",
     time: "Today · 2:00 PM",
     attendee: "Alex Rivera",
   },
   {
-    title: "Scope review · Lumen Labs",
+    title: "UX audit recap · Lumen Labs",
     time: "Tomorrow · 11:00 AM",
     attendee: "Priya Patel",
   },
   {
-    title: "Follow-up · Everest Coffee",
+    title: "Concept presentation · Everest Coffee",
     time: "Fri · 4:30 PM",
     attendee: "Morgan Lee",
   },
@@ -80,8 +81,23 @@ const stageFilter = document.getElementById("stage-filter");
 const csvUpload = document.getElementById("csv-upload");
 const exportButton = document.getElementById("export-contacts");
 const resetButton = document.getElementById("reset-contact");
+const ideasList = document.getElementById("ideas-list");
+const ideaForm = document.getElementById("idea-form");
+const ideaIdField = document.getElementById("idea-id");
+const ideaTitleField = document.getElementById("idea-title");
+const ideaLeadField = document.getElementById("idea-lead");
+const ideaCategoryField = document.getElementById("idea-category");
+const ideaPriorityField = document.getElementById("idea-priority");
+const ideaStatusField = document.getElementById("idea-status");
+const ideaNextField = document.getElementById("idea-next");
+const ideaNotesField = document.getElementById("idea-notes");
+const ideaSearchField = document.getElementById("idea-search");
+const ideaStatusFilter = document.getElementById("idea-status-filter");
+const ideaResetButton = document.getElementById("reset-idea");
+const ideaExportButton = document.getElementById("export-ideas");
 
 const contacts = [];
+const ideas = [];
 
 stats.forEach((stat) => {
   const card = document.createElement("div");
@@ -191,7 +207,7 @@ const parseCsv = (text) => {
       role: record.role || record.title || "",
       company: record.company || record.organization || "",
       email: record.email || "",
-      stage: record.stage || record.status || "Prospect",
+      stage: record.stage || record.status || "Inquiry",
       lastTouchpoint: record.lasttouchpoint || record.lastcontact || "",
       nextAction: record.nextaction || record.nextstep || "",
     };
@@ -440,6 +456,234 @@ exportButton.addEventListener("click", () => {
   const link = document.createElement("a");
   link.href = url;
   link.download = "contacts.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+});
+
+const renderIdeas = () => {
+  if (!ideasList) {
+    return;
+  }
+
+  const searchTerm = ideaSearchField.value.trim().toLowerCase();
+  const statusValue = ideaStatusFilter.value;
+
+  ideasList.innerHTML = "";
+
+  ideas
+    .filter((idea) => {
+      const matchesStatus = statusValue === "all" || idea.status === statusValue;
+      const matchesSearch = [
+        idea.title,
+        idea.lead,
+        idea.category,
+        idea.priority,
+        idea.status,
+        idea.nextStep,
+        idea.notes,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm);
+
+      return matchesStatus && matchesSearch;
+    })
+    .forEach((idea) => {
+      const card = document.createElement("div");
+      card.className = "idea-card";
+
+      const leadLabel = idea.lead || "Unassigned lead";
+      const nextStep = idea.nextStep || "TBD";
+      const notesMarkup = idea.notes ? `<div class="idea-card__notes">${idea.notes}</div>` : "";
+
+      card.innerHTML = `
+        <div class="idea-card__header">
+          <div>
+            <div class="idea-card__title">${idea.title}</div>
+            <div class="idea-card__meta">${leadLabel} · ${idea.category} · Priority: ${idea.priority}</div>
+          </div>
+          <span class="pill pill--idea">${idea.status}</span>
+        </div>
+        <div class="idea-card__next"><strong>Next:</strong> ${nextStep}</div>
+        ${notesMarkup}
+        <div class="idea-card__actions">
+          <button class="button button--ghost button--small" data-action="edit" data-id="${idea.id}">
+            Edit
+          </button>
+          <button class="button button--ghost button--small" data-action="delete" data-id="${idea.id}">
+            Delete
+          </button>
+        </div>
+      `;
+
+      ideasList.appendChild(card);
+    });
+};
+
+const resetIdeaForm = () => {
+  ideaForm.reset();
+  ideaIdField.value = "";
+  ideaForm.classList.remove("ideas__form--editing");
+  document.getElementById("save-idea").textContent = "Save idea";
+};
+
+const populateIdeaForm = (idea) => {
+  ideaIdField.value = idea.id;
+  ideaTitleField.value = idea.title;
+  ideaLeadField.value = idea.lead;
+  ideaCategoryField.value = idea.category;
+  ideaPriorityField.value = idea.priority;
+  ideaStatusField.value = idea.status;
+  ideaNextField.value = idea.nextStep;
+  ideaNotesField.value = idea.notes;
+  ideaForm.classList.add("ideas__form--editing");
+  document.getElementById("save-idea").textContent = "Update idea";
+};
+
+const fetchIdeas = async () => {
+  const response = await fetch("/api/ideas");
+  if (!response.ok) {
+    throw new Error("Failed to load ideas.");
+  }
+
+  const data = await response.json();
+  ideas.splice(0, ideas.length, ...data);
+  renderIdeas();
+};
+
+const createIdea = async (payload) => {
+  const response = await fetch("/api/ideas", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create idea.");
+  }
+
+  return response.json();
+};
+
+const updateIdea = async (ideaId, payload) => {
+  const response = await fetch(`/api/ideas/${ideaId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update idea.");
+  }
+
+  return response.json();
+};
+
+const deleteIdea = async (ideaId) => {
+  const response = await fetch(`/api/ideas/${ideaId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete idea.");
+  }
+};
+
+ideaForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const payload = {
+    id: ideaIdField.value || `i-${Date.now()}`,
+    title: ideaTitleField.value.trim(),
+    lead: ideaLeadField.value.trim(),
+    category: ideaCategoryField.value,
+    priority: ideaPriorityField.value,
+    status: ideaStatusField.value,
+    nextStep: ideaNextField.value.trim(),
+    notes: ideaNotesField.value.trim(),
+  };
+
+  if (!payload.title) {
+    return;
+  }
+
+  const existingIndex = ideas.findIndex((idea) => idea.id === payload.id);
+
+  try {
+    if (existingIndex >= 0) {
+      const updated = await updateIdea(payload.id, payload);
+      ideas[existingIndex] = updated;
+    } else {
+      const created = await createIdea(payload);
+      ideas.unshift(created);
+    }
+    resetIdeaForm();
+    renderIdeas();
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+ideaResetButton?.addEventListener("click", resetIdeaForm);
+
+ideasList?.addEventListener("click", async (event) => {
+  const button = event.target.closest("button");
+  if (!button) {
+    return;
+  }
+
+  const action = button.dataset.action;
+  const ideaId = button.dataset.id;
+  const idea = ideas.find((item) => item.id === ideaId);
+
+  if (!idea) {
+    return;
+  }
+
+  if (action === "edit") {
+    populateIdeaForm(idea);
+  }
+
+  if (action === "delete") {
+    try {
+      await deleteIdea(ideaId);
+      ideas.splice(
+        ideas.findIndex((item) => item.id === ideaId),
+        1
+      );
+      renderIdeas();
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+});
+
+ideaSearchField?.addEventListener("input", renderIdeas);
+ideaStatusFilter?.addEventListener("change", renderIdeas);
+
+ideaExportButton?.addEventListener("click", () => {
+  const headers = ["title", "lead", "category", "priority", "status", "nextStep", "notes"];
+
+  const csvRows = [
+    headers.join(","),
+    ...ideas.map((idea) =>
+      headers
+        .map((header) => `"${(idea[header] || "").replace(/"/g, '""')}"`)
+        .join(",")
+    ),
+  ];
+
+  const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "ideas.csv";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -765,5 +1009,9 @@ fsNext?.addEventListener("click", () => {
 fsClose?.addEventListener("click", closeFullscreenCalendar);
 
 fetchContacts().catch((error) => {
+  alert(error.message);
+});
+
+fetchIdeas().catch((error) => {
   alert(error.message);
 });

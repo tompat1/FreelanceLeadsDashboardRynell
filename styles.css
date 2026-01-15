@@ -204,7 +204,8 @@ h1 {
 }
 
 .input-group input,
-.input-group select {
+.input-group select,
+.input-group textarea {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 10px 12px;
@@ -212,6 +213,10 @@ h1 {
   font-family: inherit;
   background: #fff;
   color: var(--text);
+}
+
+.input-group textarea {
+  resize: vertical;
 }
 
 .contacts__form {
@@ -227,6 +232,86 @@ h1 {
   background: rgba(59, 75, 255, 0.05);
   padding: 16px;
   border-radius: 16px;
+}
+
+.ideas__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ideas__toolbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.ideas__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 12px 0 8px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.ideas__form--editing {
+  background: rgba(18, 183, 106, 0.08);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.ideas__notes {
+  grid-column: 1 / -1;
+}
+
+.ideas-list {
+  display: grid;
+  gap: 16px;
+}
+
+.idea-card {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fbfcff;
+  display: grid;
+  gap: 12px;
+}
+
+.idea-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.idea-card__title {
+  font-weight: 600;
+}
+
+.idea-card__meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.idea-card__next {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.idea-card__notes {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.idea-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .form-actions {
@@ -279,6 +364,11 @@ h1 {
   color: var(--primary);
   font-weight: 600;
   font-size: 0.75rem;
+}
+
+.pill--idea {
+  background: rgba(18, 183, 106, 0.12);
+  color: #0f7a48;
 }
 
 .table-actions {
@@ -609,6 +699,14 @@ h1 {
   }
 
   .contacts__form {
+    grid-template-columns: 1fr;
+  }
+
+  .ideas__toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .ideas__form {
     grid-template-columns: 1fr;
   }
 
