@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Freelance Leads Dashboard</title>
+    <title>Freelance Digital Design CRM</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,14 +16,16 @@
     <div class="app">
       <aside class="sidebar">
         <div class="brand">
-          <span class="brand__logo">FL</span>
+          <span class="brand__logo">DD</span>
           <div>
-            <p class="brand__title">Freelance Leads</p>
-            <p class="brand__subtitle">Dashboard</p>
+            <p class="brand__title">Digital Design</p>
+            <p class="brand__subtitle">CRM Suite</p>
           </div>
         </div>
         <nav class="nav">
           <a class="nav__link nav__link--active" href="#">Overview</a>
+          <a class="nav__link" href="#">Leads</a>
+          <a class="nav__link" href="#">Ideas</a>
           <a class="nav__link" href="#">Pipeline</a>
           <a class="nav__link" href="#">Clients</a>
           <a id="nav-calendar-link" class="nav__link" href="#">Calendar</a>
@@ -36,7 +38,7 @@
         <header class="topbar">
           <div>
             <p class="eyebrow">Good morning, Rynell</p>
-            <h1>Lead Performance Overview</h1>
+            <h1>Digital Design CRM Overview</h1>
           </div>
           <div class="topbar__actions">
             <button class="button button--ghost" type="button">Export</button>
@@ -49,8 +51,8 @@
         <section class="card contacts">
           <div class="card__header">
             <div>
-              <p class="eyebrow">Contact Manager</p>
-              <h2>Contacts &amp; Activity Hub</h2>
+              <p class="eyebrow">Lead Manager</p>
+              <h2>Leads &amp; Relationship Hub</h2>
             </div>
             <div class="contacts__actions">
               <label class="button button--ghost file-button">
@@ -71,11 +73,11 @@
               <label for="stage-filter">Filter by stage</label>
               <select id="stage-filter">
                 <option value="all">All stages</option>
-                <option value="Prospect">Prospect</option>
+                <option value="Inquiry">Inquiry</option>
                 <option value="Discovery">Discovery</option>
                 <option value="Proposal">Proposal</option>
-                <option value="Active">Active</option>
-                <option value="On Hold">On Hold</option>
+                <option value="Design">Design</option>
+                <option value="Retainer">Retainer</option>
               </select>
             </div>
           </div>
@@ -86,11 +88,11 @@
               <input id="contact-name" type="text" placeholder="Add a contact name" required />
             </div>
             <div class="input-group">
-              <label for="contact-role">Role</label>
+              <label for="contact-role">Role / Title</label>
               <input id="contact-role" type="text" placeholder="Creative Director" />
             </div>
             <div class="input-group">
-              <label for="contact-company">Company</label>
+              <label for="contact-company">Company / Studio</label>
               <input id="contact-company" type="text" placeholder="Studio name" />
             </div>
             <div class="input-group">
@@ -100,16 +102,16 @@
             <div class="input-group">
               <label for="contact-stage">Stage</label>
               <select id="contact-stage">
-                <option value="Prospect">Prospect</option>
+                <option value="Inquiry">Inquiry</option>
                 <option value="Discovery">Discovery</option>
                 <option value="Proposal">Proposal</option>
-                <option value="Active">Active</option>
-                <option value="On Hold">On Hold</option>
+                <option value="Design">Design</option>
+                <option value="Retainer">Retainer</option>
               </select>
             </div>
             <div class="input-group">
               <label for="contact-last">Last touchpoint</label>
-              <input id="contact-last" type="text" placeholder="Aug 10 · Brand workshop" />
+              <input id="contact-last" type="text" placeholder="Aug 10 · Moodboard review" />
             </div>
             <div class="input-group">
               <label for="contact-next">Next action</label>
@@ -141,10 +143,95 @@
           </div>
         </section>
 
+        <section class="card ideas">
+          <div class="card__header">
+            <div>
+              <p class="eyebrow">Idea studio</p>
+              <h2>Capture &amp; Track Design Ideas</h2>
+            </div>
+            <div class="ideas__actions">
+              <button class="button button--ghost" type="button" id="export-ideas">
+                Export ideas
+              </button>
+            </div>
+          </div>
+          <div class="ideas__toolbar">
+            <div class="input-group">
+              <label for="idea-search">Search ideas</label>
+              <input
+                id="idea-search"
+                type="search"
+                placeholder="Search by title, lead, or category"
+              />
+            </div>
+            <div class="input-group">
+              <label for="idea-status-filter">Filter by status</label>
+              <select id="idea-status-filter">
+                <option value="all">All statuses</option>
+                <option value="New">New</option>
+                <option value="Exploring">Exploring</option>
+                <option value="Ready to pitch">Ready to pitch</option>
+                <option value="Archived">Archived</option>
+              </select>
+            </div>
+          </div>
+          <form class="ideas__form" id="idea-form">
+            <input type="hidden" id="idea-id" />
+            <div class="input-group">
+              <label for="idea-title">Idea title</label>
+              <input id="idea-title" type="text" placeholder="Immersive landing page concept" required />
+            </div>
+            <div class="input-group">
+              <label for="idea-lead">Related lead</label>
+              <input id="idea-lead" type="text" placeholder="Lumen Labs" />
+            </div>
+            <div class="input-group">
+              <label for="idea-category">Category</label>
+              <select id="idea-category">
+                <option value="Branding">Branding</option>
+                <option value="Web Design">Web Design</option>
+                <option value="UI/UX">UI/UX</option>
+                <option value="Motion">Motion</option>
+                <option value="Illustration">Illustration</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="idea-priority">Priority</label>
+              <select id="idea-priority">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="idea-status">Status</label>
+              <select id="idea-status">
+                <option value="New">New</option>
+                <option value="Exploring">Exploring</option>
+                <option value="Ready to pitch">Ready to pitch</option>
+                <option value="Archived">Archived</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="idea-next">Next step</label>
+              <input id="idea-next" type="text" placeholder="Share moodboard for feedback" />
+            </div>
+            <div class="input-group ideas__notes">
+              <label for="idea-notes">Notes</label>
+              <textarea id="idea-notes" rows="3" placeholder="Add references, inspiration, or quick sketches."></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="button" type="submit" id="save-idea">Save idea</button>
+              <button class="button button--ghost" type="button" id="reset-idea">Clear</button>
+            </div>
+          </form>
+          <div class="ideas-list" id="ideas-list"></div>
+        </section>
+
         <section class="grid">
           <div class="card card--wide">
             <div class="card__header">
-              <h2>Pipeline Stage Breakdown</h2>
+              <h2>Lead Pipeline Breakdown</h2>
               <button class="button button--ghost" type="button">View details</button>
             </div>
             <div class="pipeline" id="pipeline"></div>
@@ -152,7 +239,7 @@
 
           <div class="card">
             <div class="card__header">
-              <h2>Upcoming Calls</h2>
+              <h2>Upcoming Creative Sessions</h2>
               <button class="button button--ghost" type="button">See calendar</button>
             </div>
             <ul class="list" id="calls"></ul>
@@ -160,7 +247,7 @@
 
           <div class="card">
             <div class="card__header">
-              <h2>Top Opportunities</h2>
+              <h2>Top Design Opportunities</h2>
               <button class="button button--ghost" type="button">Manage</button>
             </div>
             <div class="opportunities" id="opportunities"></div>

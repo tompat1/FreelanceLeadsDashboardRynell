@@ -19,3 +19,15 @@ CREATE TABLE IF NOT EXISTS events (
   notes TEXT,
   created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS ideas (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  lead TEXT,
+  category TEXT,
+  priority TEXT,
+  status TEXT,
+  next_step TEXT,
+  notes TEXT,
+  created_at TEXT NOT NULL
+);
